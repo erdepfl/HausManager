@@ -7,6 +7,8 @@ Wartung und Projekte rund ums Haus – als Web-App fürs iPhone (Home-Bildschirm
 - **Wartung:** wiederkehrende Aufgaben mit Saison, Projekte, Zeit- und Kostenbuchung, Verlauf mit Excel-Export.
 - **Familienkalender:** Termine pro Person (farbig), ganztägig/mehrtägig, Wiederholungen; Wartungsfälligkeiten erscheinen automatisch. Import aus .ics-Dateien.
 - **Einkaufslisten:** mehrere Listen, Mengen-Erkennung („2 Milch“, „500 g Mehl“), Vorschläge aus häufig gekauften Artikeln, Teilen als Text.
+- **Rezepte:** eigene Sammlung mit Portionsrechner; Rezepte per Foto scannen (Texterkennung direkt auf dem Gerät, Tesseract.js – wird erst beim ersten Scan geladen) oder Text einfügen; Zutaten mit einem Tipp auf die Einkaufsliste (gleiche Zutaten werden zusammengerechnet).
+- **Wochenplan:** Gerichte pro Tag planen, Zutaten der ganzen Woche auf die Einkaufsliste, Gerichte erscheinen im Kalender.
 
 ## Aufbau
 
