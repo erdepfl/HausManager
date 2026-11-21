@@ -268,7 +268,10 @@
     .row input.val:focus { color: var(--label); }
     .row input[type="date"].val { min-height: 23px; color: var(--tint); }
     .row input[type="date"]::-webkit-date-and-time-value { text-align: right; }
-    .row input[type="date"]::-webkit-calendar-picker-indicator { opacity: 0; position: absolute; inset: 0; width: 100%; height: 100%; cursor: pointer; }
+    .row input[type="date"].val, .row input[type="time"].val { position: relative; }
+    .row input[type="date"]::-webkit-calendar-picker-indicator, .row input[type="time"]::-webkit-calendar-picker-indicator { opacity: 0; position: absolute; inset: 0; width: 100%; height: 100%; cursor: pointer; }
+    .row input[type="time"].val { flex: 0 0 auto; width: 92px; min-height: 23px; color: var(--tint); }
+    .row input[type="time"]::-webkit-date-and-time-value { text-align: right; }
     .row .unit { color: var(--label2); }
     .updown { font-size: 15px; color: var(--label3); margin-left: -6px; stroke-width: 2.4; }
     .caps { display: flex; gap: 8px; flex-wrap: wrap; }
@@ -290,6 +293,41 @@
     }
     #toast.show { opacity: 1; transform: translate(-50%, 0); pointer-events: auto; }
     #toast button { background: none; border: 0; color: #0a84ff; font-weight: 600; padding: 0; font-size: 15px; }
+
+    /* Kalender */
+    .cal { padding: 6px 6px 8px; }
+    .cal-head { display: flex; align-items: center; justify-content: space-between; padding: 0 0 6px 10px; }
+    .cal-head b { font-size: 20px; font-weight: 700; }
+    .cal-head .nav-btn { min-height: 38px; padding: 4px 9px; }
+    .cal-wd, .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; }
+    .cal-wd span { font-size: 12px; font-weight: 600; color: var(--label2); padding-bottom: 2px; }
+    .cal-day { position: relative; border: 0; background: none; padding: 3px 0 9px; display: flex; flex-direction: column; align-items: center; font-size: 17px; color: var(--label); font-variant-numeric: tabular-nums; }
+    .cal-day .n { width: 34px; height: 34px; line-height: 34px; border-radius: 50%; transition: background .15s; }
+    .cal-day.out { color: var(--label3); }
+    .cal-day.today .n { color: var(--red); font-weight: 600; }
+    .cal-day.sel .n { background: var(--label); color: var(--cell); font-weight: 600; }
+    .cal-day.sel.today .n { background: var(--red); color: #fff; }
+    .cal-day .dots { position: absolute; bottom: 3px; display: flex; gap: 3px; height: 5px; }
+    .cal-day .dots i { width: 5px; height: 5px; border-radius: 50%; }
+    .row.ev { align-items: stretch; gap: 10px; }
+    .ev-time { width: 54px; flex-shrink: 0; font-size: 15px; line-height: 1.25; font-variant-numeric: tabular-nums; padding-top: 1px; }
+    .ev-time .s { color: var(--label2); font-size: 13px; margin-top: 2px; }
+    .ev-bar { width: 4px; border-radius: 2px; flex-shrink: 0; }
+
+    /* Einkauf */
+    .sugg { display: flex; gap: 8px; overflow-x: auto; padding: 0 16px 18px; margin-top: -12px; scrollbar-width: none; }
+    .sugg::-webkit-scrollbar { display: none; }
+    .sugg:empty { display: none; }
+    .sugg.lists { margin-top: 0; padding-bottom: 14px; }
+    .sugg .cap { white-space: nowrap; flex-shrink: 0; background: var(--cell); }
+    .sugg .cap.on { background: var(--tint); color: #fff; }
+    .add-row .plus { width: 24px; height: 24px; border-radius: 50%; border: 0; padding: 0; background: var(--tint); color: #fff; display: grid; place-items: center; flex-shrink: 0; }
+    .add-row .plus .ic { font-size: 16px; stroke-width: 3; }
+    .row.item { --inset: 52px; }
+    .row.item.done .row-title { color: var(--label2); text-decoration: line-through; }
+    .qty { color: var(--label2); font-size: 15px; flex-shrink: 0; max-width: 40%; text-align: right; overflow-wrap: anywhere; }
+    .gh-row { display: flex; justify-content: space-between; align-items: center; }
+    .gh-btn { background: none; border: 0; padding: 0; color: var(--tint); font-size: 15px; text-transform: none; letter-spacing: 0; }
 
     @media (min-width: 760px) {
       .overlay { align-items: center; padding: 24px; }
@@ -313,7 +351,11 @@
         <div class="content"></div>
       </div>
     </section>
-    <section class="page root" data-tab="areas" data-view="areas" hidden>
+    <section class="page root" data-tab="calendar" data-view="calendar" hidden>
+      <header class="nav"><div class="nav-l"></div><div class="nav-t"></div><div class="nav-r"></div></header>
+      <div class="inner"><h1 class="large"></h1><div class="content"></div></div>
+    </section>
+    <section class="page root" data-tab="shopping" data-view="shopping" hidden>
       <header class="nav"><div class="nav-l"></div><div class="nav-t"></div><div class="nav-r"></div></header>
       <div class="inner"><h1 class="large"></h1><div class="content"></div></div>
     </section>
@@ -328,7 +370,8 @@
 
     <nav class="tabbar" id="tabbar">
       <button class="tab on" data-action="tab" data-tab="home"><svg class="ic" viewBox="0 0 24 24"><path d="M3.5 10.5 12 3.5l8.5 7V20a1 1 0 0 1-1 1h-4.5v-6h-6v6H4.5a1 1 0 0 1-1-1z"/></svg>Übersicht<span class="bdg" id="homeBadge" hidden></span></button>
-      <button class="tab" data-action="tab" data-tab="areas"><svg class="ic" viewBox="0 0 24 24"><rect x="4" y="4" width="7" height="7" rx="1.8"/><rect x="13" y="4" width="7" height="7" rx="1.8"/><rect x="4" y="13" width="7" height="7" rx="1.8"/><rect x="13" y="13" width="7" height="7" rx="1.8"/></svg>Bereiche</button>
+      <button class="tab" data-action="tab" data-tab="calendar"><svg class="ic" viewBox="0 0 24 24"><rect x="4" y="5.5" width="16" height="14.5" rx="2.5"/><path d="M4 10h16M8.5 3.5v4M15.5 3.5v4"/></svg>Kalender</button>
+      <button class="tab" data-action="tab" data-tab="shopping"><svg class="ic" viewBox="0 0 24 24"><circle cx="9.5" cy="19.5" r="1.4"/><circle cx="17" cy="19.5" r="1.4"/><path d="M2.5 3.5h2.6l2.3 11.5h11.1l2-8.5H6.3"/></svg>Einkauf</button>
       <button class="tab" data-action="tab" data-tab="history"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>Verlauf</button>
       <button class="tab" data-action="tab" data-tab="settings"><svg class="ic" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2.8v2.4M12 18.8v2.4M2.8 12h2.4M18.8 12h2.4M5.5 5.5l1.7 1.7M16.8 16.8l1.7 1.7M5.5 18.5l1.7-1.7M16.8 7.2l1.7-1.7"/><circle cx="12" cy="12" r="6.6"/></svg>Einstellungen</button>
     </nav>
@@ -426,6 +469,61 @@
     </div>
   </div>
 
+  <!-- Sheet: Termin -->
+  <div class="overlay" id="eventSheet" hidden>
+    <div class="sheet tall" role="dialog" aria-modal="true" aria-labelledby="esTitle">
+      <div class="sheet-nav">
+        <button class="nav-btn" data-action="close">Abbrechen</button>
+        <div class="sheet-title" id="esTitle">Neuer Termin</div>
+        <button class="nav-btn bold" data-action="saveEvent">Sichern</button>
+      </div>
+      <div class="sheet-body">
+        <div class="group">
+          <div class="row"><input id="eTitle" class="full" type="text" maxlength="120" placeholder="Titel" enterkeyhint="next"></div>
+          <div class="row"><input id="eLoc" class="full" type="text" maxlength="120" placeholder="Ort"></div>
+        </div>
+        <div class="group">
+          <div class="row"><span class="row-label">Ganztägig</span><label class="switch"><input type="checkbox" id="eAllDay"><i></i></label></div>
+          <div class="row"><span class="row-label">Beginn</span><input id="eDate" class="val" type="date"><input id="eStart" class="val tm" type="time"></div>
+          <div class="row"><span class="row-label">Ende</span><input id="eEndDate" class="val" type="date"><input id="eEnd" class="val tm" type="time"></div>
+        </div>
+        <div class="group">
+          <label class="row tap"><span class="row-label">Wiederholen</span>
+            <select id="eRepeat" class="val">
+              <option value="none">Nie</option>
+              <option value="weekly">Wöchentlich</option>
+              <option value="biweekly">Alle 2 Wochen</option>
+              <option value="monthly">Monatlich</option>
+              <option value="yearly">Jährlich</option>
+            </select><svg class="ic updown" viewBox="0 0 24 24"><path d="M8 9.5l4-4 4 4M8 14.5l4 4 4-4"/></svg></label>
+          <label class="row tap"><span class="row-label">Wer</span><select id="ePerson" class="val"></select><svg class="ic updown" viewBox="0 0 24 24"><path d="M8 9.5l4-4 4 4M8 14.5l4 4 4-4"/></svg></label>
+        </div>
+        <div class="group"><div class="row"><textarea id="eNotes" rows="3" placeholder="Notizen"></textarea></div></div>
+        <div class="group" id="eDeleteGroup"><button class="row danger" data-action="deleteEvent">Termin löschen</button></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sheet: Einkaufsartikel -->
+  <div class="overlay" id="itemSheet" hidden>
+    <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="isTitle">
+      <div class="sheet-nav">
+        <button class="nav-btn" data-action="close">Abbrechen</button>
+        <div class="sheet-title" id="isTitle">Artikel</div>
+        <button class="nav-btn bold" data-action="saveItem">Sichern</button>
+      </div>
+      <div class="sheet-body">
+        <div class="group"><div class="row"><input id="iName" class="full" type="text" maxlength="80" placeholder="Artikel"></div></div>
+        <div class="group">
+          <label class="row"><span class="row-label">Menge</span><input id="iQty" class="val" type="text" maxlength="30" placeholder="z. B. 2 oder 500 g"></label>
+          <label class="row tap"><span class="row-label">Liste</span><select id="iList" class="val"></select><svg class="ic updown" viewBox="0 0 24 24"><path d="M8 9.5l4-4 4 4M8 14.5l4 4 4-4"/></svg></label>
+        </div>
+        <div class="group"><div class="row"><input id="iNote" class="full" type="text" maxlength="120" placeholder="Notiz, z. B. Marke, laktosefrei"></div></div>
+        <div class="group"><button class="row danger" data-action="deleteItem">Artikel löschen</button></div>
+      </div>
+    </div>
+  </div>
+
   <div id="toast" role="status" aria-live="polite"><span id="toastMsg"></span><button id="toastUndo" hidden>Widerrufen</button></div>
 
   <script>
@@ -484,7 +582,8 @@
     clock: '<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>',
     euro: '<path d="M17.5 6.5a6.5 6.5 0 1 0 0 11M4.5 10.5h9M4.5 13.5h9"/>',
     list: '<path d="M9 6.5h11M9 12h11M9 17.5h11M4.5 6.5h.01M4.5 12h.01M4.5 17.5h.01"/>',
-    updown: '<path d="M8 9.5l4-4 4 4M8 14.5l4 4 4-4"/>'
+    updown: '<path d="M8 9.5l4-4 4 4M8 14.5l4 4 4-4"/>',
+    cart: '<circle cx="9.5" cy="19.5" r="1.4"/><circle cx="17" cy="19.5" r="1.4"/><path d="M2.5 3.5h2.6l2.3 11.5h11.1l2-8.5H6.3"/>'
   };
   const svg = (name, cls = '') => `<svg class="ic ${cls}" viewBox="0 0 24 24" aria-hidden="true">${ICON[name] || ''}</svg>`;
   const sq = (icon, color) => `<span class="sq" style="background:var(--${color})">${svg(icon)}</span>`;
@@ -504,7 +603,8 @@
   const areaSq = a => { const [i, c] = areaMeta(a); return sq(i, c); };
 
   /* ================= Speicher ================= */
-  const KEYS = { tasks: 'hausmanager_tasks_v5', logs: 'hausmanager_logs_v5', res: 'hausmanager_resources_v5', meta: 'hausmanager_meta_v5', preRestore: 'hausmanager_pre_restore' };
+  const KEYS = { tasks: 'hausmanager_tasks_v5', logs: 'hausmanager_logs_v5', res: 'hausmanager_resources_v5', meta: 'hausmanager_meta_v5', preRestore: 'hausmanager_pre_restore',
+    events: 'hausmanager_events_v1', shopLists: 'hausmanager_shop_lists_v1', shopItems: 'hausmanager_shop_items_v1', shopHist: 'hausmanager_shop_hist_v1' };
   const Store = {
     read(key, fallback) { try { const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : fallback; } catch { return fallback; } },
     write(key, value) { try { localStorage.setItem(key, JSON.stringify(value)); return true; } catch (e) { toast('Speichern fehlgeschlagen – bitte Backup erstellen'); console.error(e); return false; } }
@@ -533,11 +633,23 @@
   const saveRes = () => Store.write(KEYS.res, resources);
   const saveMeta = () => Store.write(KEYS.meta, meta);
 
+  // Kalender & Einkauf – jeder Datensatz hat id + updatedAt (Grundlage für spätere Synchronisierung)
+  const DEFAULT_LISTS = [{ id: 'supermarkt', name: 'Supermarkt' }, { id: 'drogerie', name: 'Drogerie' }, { id: 'baumarkt', name: 'Baumarkt' }];
+  let events = (Store.read(KEYS.events, []) || []).filter(e => e && parseISO(e.date));
+  let shopLists = Store.read(KEYS.shopLists, null) || DEFAULT_LISTS.slice();
+  if (!shopLists.length) shopLists = DEFAULT_LISTS.slice();
+  let shopItems = Store.read(KEYS.shopItems, []) || [];
+  let shopHist = Store.read(KEYS.shopHist, {}) || {};
+  const saveEvents = () => Store.write(KEYS.events, events);
+  const saveShop = () => { Store.write(KEYS.shopLists, shopLists); Store.write(KEYS.shopItems, shopItems); Store.write(KEYS.shopHist, shopHist); };
+
   const ui = {
     tab: 'home', query: '', type: 'recurring',
     completingTaskId: null, editingLogId: null,
     hist: { mode: 'month', key: todayISO().slice(0, 7) },
-    tplSel: new Set(), sheets: []
+    tplSel: new Set(), sheets: [],
+    cal: { month: todayISO().slice(0, 7), sel: todayISO() },
+    shopList: null, shopQuery: '', editingEventId: null, editingItemId: null
   };
 
   /* ================= Fachlogik ================= */
@@ -679,12 +791,19 @@
       const last = meta.lastBackup ? new Date(meta.lastBackup) : null;
       const age = last ? Math.floor((Date.now() - last) / DAY) : Infinity;
       if (age >= 30) h += group(`<div class="row sq-row" data-action="exportBackup">${sq('download', 'orange')}<div class="row-main"><div class="row-title">Backup empfohlen</div><div class="row-sub">${last ? `Letzte Sicherung vor ${age} Tagen` : 'Noch keine Sicherung erstellt'}</div></div>${svg('chev', 'chev')}</div>`);
+      const todays = eventsOn(todayISO());
+      if (todays.length) h += `<div class="gh big">Heute</div>` + group(todays.map(e => evRow(e, todayISO(), false)).join(''));
       if (due.length) h += `<div class="gh big" style="color:var(--red)">Fällig</div>` + group(due.map(x => taskRow(x.t, x.s)).join(''));
       if (soon.length) h += `<div class="gh big" style="color:var(--orange)">Demnächst</div>` + group(soon.map(x => taskRow(x.t, x.s)).join(''));
       if (!due.length && !soon.length) {
         const next = st.filter(x => isFinite(x.s.daysLeft) && x.s.status !== 'paused').sort(byUrgency)[0];
         h += group(`<div class="row sq-row" ${next ? `data-action="openTask" data-id="${esc(next.t.id)}"` : ''}>${sq('check', 'green')}<div class="row-main"><div class="row-title">Alles erledigt</div><div class="row-sub">${next ? `Als Nächstes: ${esc(next.t.title)} · ${esc(shortDue(next.s))}` : 'Keine anstehenden Aufgaben'}</div></div>${next ? svg('chev', 'chev') : ''}</div>`);
       }
+      const areaList = allAreas(false);
+      if (areaList.length) h += group(areaList.map(a => {
+        const l = st.filter(x => x.t.area === a), dn = l.filter(x => isDue(x.s)).length;
+        return `<div class="row sq-row" data-action="openList" data-kind="area" data-area="${esc(a)}">${areaSq(a)}<span class="row-label">${esc(a)}</span>${dn ? `<span class="pill-red">${dn}</span>` : ''}<span class="count">${l.length}</span>${svg('chev', 'chev')}</div>`;
+      }).join(''), 'Bereiche');
       const mk = todayISO().slice(0, 7);
       const ml = logs.filter(l => l.date.startsWith(mk));
       h += group(`
@@ -695,21 +814,47 @@
       return v;
     },
 
-    areas() {
-      const v = { title: 'Bereiche', right: plusBtn() };
-      const st = activeStates();
-      const areas = allAreas(false);
-      if (!areas.length) { v.content = emptyBox('🗂️', 'Noch keine Bereiche', 'Bereiche entstehen automatisch, sobald du Aufgaben anlegst.'); return v; }
-      const tail = (n, due) => `${due ? `<span class="pill-red">${due}</span>` : ''}<span class="count">${n}</span>${svg('chev', 'chev')}`;
-      const open = st.filter(x => x.t.type === 'onetime');
-      let h = group(`
-        <div class="row sq-row" data-action="openList" data-kind="all">${sq('tray', 'gray')}<span class="row-label">Alle Aufgaben</span>${tail(st.length, st.filter(x => isDue(x.s)).length)}</div>
-        <div class="row sq-row" data-action="openList" data-kind="projects">${sq('pin', 'blue')}<span class="row-label">Projekte</span>${tail(open.length, open.filter(x => isDue(x.s)).length)}</div>`);
-      h += group(areas.map(a => {
-        const l = st.filter(x => x.t.area === a);
-        return `<div class="row sq-row" data-action="openList" data-kind="area" data-area="${esc(a)}">${areaSq(a)}<span class="row-label">${esc(a)}</span>${tail(l.length, l.filter(x => isDue(x.s)).length)}</div>`;
-      }).join(''), 'Bereiche');
+    calendar() {
+      const v = { title: 'Kalender', right: `<button class="nav-btn" data-action="calToday">Heute</button><button class="nav-btn" data-action="newEvent" aria-label="Neuer Termin">${svg('plus')}</button>` };
+      const { month, sel } = ui.cal;
+      const [y, m] = month.split('-').map(Number);
+      const first = new Date(y, m - 1, 1), offset = (first.getDay() + 6) % 7, dim = new Date(y, m, 0).getDate();
+      const start = addDays(first, -offset), today = todayISO(), dueMap = maintenanceByDate();
+      let cells = '';
+      for (let i = 0; i < Math.ceil((offset + dim) / 7) * 7; i++) {
+        const d = addDays(start, i), iso = isoOf(d);
+        const colors = [...new Set(eventsOn(iso).map(e => personColor(e.person)))].slice(0, 3);
+        if (dueMap[iso]) colors.push('orange');
+        cells += `<button class="cal-day ${d.getMonth() !== m - 1 ? 'out' : ''} ${iso === today ? 'today' : ''} ${iso === sel ? 'sel' : ''}" data-action="calSel" data-d="${iso}" aria-label="${d.toLocaleDateString('de-DE', { day: 'numeric', month: 'long' })}"><span class="n">${d.getDate()}</span><span class="dots">${colors.map(c => `<i style="background:var(--${c})"></i>`).join('')}</span></button>`;
+      }
+      let h = `<div class="group cal"><div class="cal-head"><b>${MONTHS[m - 1]} ${y}</b><span><button class="nav-btn" data-action="calStep" data-d="-1" aria-label="Vorheriger Monat">${svg('left')}</button><button class="nav-btn" data-action="calStep" data-d="1" aria-label="Nächster Monat">${svg('right')}</button></span></div>
+        <div class="cal-wd">${WD.map(w => `<span>${w}</span>`).join('')}</div><div class="cal-grid">${cells}</div></div>`;
+      const dayRows = eventsOn(sel).map(e => evRow(e, sel, false)).join('') + (dueMap[sel] || []).map(x => taskRow(x.t, x.s)).join('');
+      h += group(dayRows || `<button class="row tint" data-action="newEvent" data-d="${sel}">Termin hinzufügen …</button>`,
+        parseISO(sel).toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long' }));
+      const up = upcomingEvents(sel, 60, 8);
+      if (up.length) h += group(up.map(o => evRow(o.ev, o.iso, true)).join(''), 'Demnächst');
       v.content = h;
+      return v;
+    },
+
+    shopping() {
+      const list = currentList();
+      ui.shopList = list.id;
+      const items = shopItems.filter(i => i.listId === list.id);
+      const open = items.filter(i => !i.done).sort((a, b) => a.createdAt - b.createdAt);
+      const done = items.filter(i => i.done).sort((a, b) => (b.doneAt || 0) - (a.doneAt || 0));
+      const v = { title: 'Einkauf', right: `<button class="nav-btn" data-action="shopShare" aria-label="Liste teilen">${svg('share')}</button>` };
+      const cnt = l => shopItems.filter(i => i.listId === l.id && !i.done).length;
+      let h = `<div class="sugg lists">${shopLists.map(l => `<button type="button" class="cap ${l.id === list.id ? 'on' : ''}" data-action="shopPick" data-id="${esc(l.id)}">${esc(l.name)}${cnt(l) ? ` · ${cnt(l)}` : ''}</button>`).join('')}<button type="button" class="cap" data-action="shopNewList">+ Liste</button></div>`;
+      h += `<div class="group"><div class="row add-row"><button type="button" class="plus" data-action="shopAdd" aria-label="Hinzufügen">${svg('plus')}</button><input id="shopInput" class="full" type="text" placeholder="Artikel, z. B. 2 Milch" enterkeyhint="done" autocomplete="off"></div></div>`;
+      h += `<div class="sugg" id="shopSugg">${suggHTML()}</div>`;
+      h += open.length ? group(open.map(itemRow).join(''), `${esc(list.name)} · ${open.length} offen`)
+        : group(`<div class="row"><span class="row-label" style="color:var(--label2)">Die Liste ist leer.</span></div>`, esc(list.name));
+      if (done.length) h += `<div class="gh gh-row"><span>Im Wagen · ${done.length}</span><button class="gh-btn" data-action="clearDone">Entfernen</button></div>` + group(done.map(itemRow).join(''));
+      h += group(`<button class="row tint" data-action="shopRenameList">Liste umbenennen …</button>${shopLists.length > 1 ? `<button class="row" style="color:var(--red)" data-action="shopDeleteList">Liste löschen</button>` : ''}`);
+      v.content = h;
+      v.after = () => { const inp = $('shopInput'); if (inp) inp.value = ui.shopQuery; };
       return v;
     },
 
@@ -741,17 +886,18 @@
     settings() {
       const v = { title: 'Einstellungen' };
       const last = meta.lastBackup ? fmtDate(isoOf(new Date(meta.lastBackup))) : null;
-      let h = group(resources.map(r => `<div class="row sq-row">${sq('person', 'gray')}<span class="row-label">${esc(r)}</span><button class="nav-btn" style="color:var(--red);min-height:0;padding:4px 0" data-action="deletePerson" data-name="${esc(r)}">Entfernen</button></div>`).join('')
-        + `<button class="row tint" data-action="addPerson">Person hinzufügen …</button>`, 'Personen', 'Personen erscheinen beim Buchen unter „Erledigt von“.');
+      let h = group(resources.map(r => `<div class="row sq-row">${sq('person', personColor(r))}<span class="row-label">${esc(r)}</span><button class="nav-btn" style="color:var(--red);min-height:0;padding:4px 0" data-action="deletePerson" data-name="${esc(r)}">Entfernen</button></div>`).join('')
+        + `<button class="row tint" data-action="addPerson">Person hinzufügen …</button>`, 'Personen', 'Personen erscheinen beim Buchen und im Kalender – jeweils mit eigener Farbe.');
       h += group(`<div class="row sq-row" data-action="openTemplates">${sq('list', 'blue')}<span class="row-label">Aufgaben-Vorlagen</span>${svg('chev', 'chev')}</div>
-        <div class="row sq-row" data-action="exportICS">${sq('cal', 'red')}<span class="row-label">In Kalender übernehmen</span>${svg('chev', 'chev')}</div>`,
-        'Aufgaben', 'Der Kalender-Export legt alle nächsten Fälligkeiten mit Erinnerung um 9 Uhr an, z. B. im iPhone-Kalender.');
+        <div class="row sq-row" data-action="exportICS">${sq('cal', 'red')}<span class="row-label">Wartung in iPhone-Kalender</span>${svg('chev', 'chev')}</div>
+        <label class="row sq-row tap">${sq('cal', 'orange')}<span class="row-label">Kalender importieren (.ics)</span>${svg('chev', 'chev')}<input type="file" id="icsImport" accept=".ics,text/calendar" hidden></label>`,
+        'Aufgaben & Kalender', '„Wartung in iPhone-Kalender“ legt alle nächsten Fälligkeiten mit Erinnerung um 9 Uhr an. Über „Kalender importieren“ übernimmst du Termine aus einer .ics-Datei, z. B. aus einem Kalender-Export.');
       h += group(`<div class="row sq-row" data-action="exportBackup">${sq('download', 'green')}<div class="row-main"><div class="row-title">Backup erstellen</div><div class="row-sub">${last ? `Zuletzt am ${last}` : 'Noch keine Sicherung'}</div></div>${svg('chev', 'chev')}</div>
         <label class="row sq-row tap">${sq('upload', 'orange')}<span class="row-label">Backup wiederherstellen</span>${svg('chev', 'chev')}<input type="file" id="fileRestore" accept=".json,application/json" hidden></label>`,
         'Datensicherung', 'Deine Daten liegen nur lokal in diesem Browser. Regelmäßige Backups schützen vor Verlust, etwa wenn Safari Website-Daten löscht.');
       h += group(`<label class="row sq-row tap">${sq('moon', 'indigo')}<span class="row-label">Erscheinungsbild</span>
         <select class="val" id="themeSel"><option value="auto">Automatisch</option><option value="light">Hell</option><option value="dark">Dunkel</option></select>${svg('updown', 'updown')}</label>`, 'Darstellung');
-      h += `<div class="gf" style="margin-top:0;text-align:center">HausManager 7.0 · ${plural(tasks.length, 'Aufgabe', 'Aufgaben')} · ${plural(logs.length, 'Buchung', 'Buchungen')}</div>`;
+      h += `<div class="gf" style="margin-top:0;text-align:center">HausManager 8.0 · ${plural(tasks.length, 'Aufgabe', 'Aufgaben')} · ${plural(logs.length, 'Buchung', 'Buchungen')}</div>`;
       v.content = h;
       v.after = el => { const s = el.querySelector('#themeSel'); if (s) s.value = meta.theme || 'auto'; };
       return v;
@@ -1250,7 +1396,7 @@
 
   /* ================= Backup ================= */
   function exportBackup() {
-    const data = { app: 'HausManager', version: '7.0', exportDate: new Date().toISOString(), tasks, logs, resources, meta: { lastPerson: meta.lastPerson } };
+    const data = { app: 'HausManager', version: '8.0', exportDate: new Date().toISOString(), tasks, logs, resources, events, shopLists, shopItems, shopHist, meta: { lastPerson: meta.lastPerson } };
     download(`HausManager_Backup_${todayISO()}.json`, JSON.stringify(data, null, 2), 'application/json')
       .then(() => { meta.lastBackup = new Date().toISOString(); saveMeta(); render(); toast('Backup erstellt'); })
       .catch(() => {});
@@ -1263,11 +1409,15 @@
         if (!Array.isArray(p.tasks) || !Array.isArray(p.logs)) throw new Error('Keine HausManager-Sicherung');
         const when = p.exportDate ? ` vom ${fmtDate(isoOf(new Date(p.exportDate)))}` : '';
         if (!confirm(`Backup${when} laden?\n${p.tasks.length} Aufgaben, ${p.logs.length} Buchungen.\n\nDie aktuellen Daten werden ersetzt.`)) return;
-        Store.write(KEYS.preRestore, { savedAt: new Date().toISOString(), tasks, logs, resources });
+        Store.write(KEYS.preRestore, { savedAt: new Date().toISOString(), tasks, logs, resources, events, shopLists, shopItems, shopHist });
         tasks = p.tasks.map(normalizeTask);
         logs = p.logs.map(normalizeLog).sort((a, b) => b.date.localeCompare(a.date));
         if (Array.isArray(p.resources) && p.resources.length) resources = p.resources.map(String);
-        saveTasks(); saveLogs(); saveRes(); render();
+        if (Array.isArray(p.events)) events = p.events.filter(e => e && parseISO(e.date));
+        if (Array.isArray(p.shopLists) && p.shopLists.length) shopLists = p.shopLists;
+        if (Array.isArray(p.shopItems)) shopItems = p.shopItems;
+        if (p.shopHist && typeof p.shopHist === 'object') shopHist = p.shopHist;
+        saveTasks(); saveLogs(); saveRes(); saveEvents(); saveShop(); render();
         toast('Backup wiederhergestellt');
       } catch (err) { alert('Datei konnte nicht gelesen werden: ' + err.message); }
     };
@@ -1302,6 +1452,317 @@
     ui.tplSel.clear(); saveTasks();
     pop(); render();
     toast(`${plural(picked.length, 'Aufgabe', 'Aufgaben')} hinzugefügt`);
+  }
+
+  /* ================= Personen-Farben ================= */
+  const PERSON_COLORS = ['blue', 'pink', 'green', 'orange', 'purple', 'teal', 'indigo', 'brown'];
+  function personColor(name) {
+    if (!name || name === 'Familie') return 'gray';
+    const i = resources.indexOf(name);
+    if (i >= 0) return PERSON_COLORS[i % PERSON_COLORS.length];
+    let h = 0; for (const c of name) h = (h * 31 + c.charCodeAt(0)) >>> 0;
+    return PERSON_COLORS[h % PERSON_COLORS.length];
+  }
+
+  /* ================= Kalender ================= */
+  const WD = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'];
+  const REPEAT_LABEL = { none: 'Nie', weekly: 'Wöchentlich', biweekly: 'Alle 2 Wochen', monthly: 'Monatlich', yearly: 'Jährlich' };
+
+  function repeatMatches(ev, d0, base) {
+    if (ev.repeatUntil && isoOf(base) > ev.repeatUntil) return false;
+    const diff = diffDays(d0, base);
+    switch (ev.repeat) {
+      case 'weekly': return diff % 7 === 0;
+      case 'biweekly': return diff % 14 === 0;
+      case 'monthly': return base.getDate() === d0.getDate();
+      case 'yearly': return base.getDate() === d0.getDate() && base.getMonth() === d0.getMonth();
+      default: return diff === 0;
+    }
+  }
+  /** Findet ein Termin (ggf. wiederholt / mehrtägig) an diesem Tag statt? */
+  function occursOn(ev, iso, startOnly) {
+    const d0 = parseISO(ev.date), d = parseISO(iso);
+    if (!d0 || !d || d < d0) return false;
+    const span = startOnly ? 0 : Math.min(60, Math.max(0, diffDays(d0, parseISO(ev.endDate) || d0)));
+    for (let k = 0; k <= span; k++) {
+      const base = addDays(d, -k);
+      if (base < d0) break;
+      if (repeatMatches(ev, d0, base)) return true;
+    }
+    return false;
+  }
+  const evSort = (a, b) => (b.allDay - a.allDay) || String(a.start || '').localeCompare(String(b.start || '')) || a.title.localeCompare(b.title, 'de');
+  const eventsOn = iso => events.filter(ev => occursOn(ev, iso)).sort(evSort);
+  function upcomingEvents(fromISO, days, max) {
+    const out = [], from = parseISO(fromISO);
+    for (let i = 1; i <= days && out.length < max; i++) {
+      const iso = isoOf(addDays(from, i));
+      events.filter(ev => occursOn(ev, iso, true)).sort(evSort).forEach(ev => { if (out.length < max) out.push({ ev, iso }); });
+    }
+    return out;
+  }
+  /** Wartungsfälligkeiten nach Datum; Überfälliges erscheint am heutigen Tag */
+  function maintenanceByDate() {
+    const map = {}, today = todayISO();
+    activeStates().forEach(x => {
+      if (!x.s.due) return;
+      const iso = isDue(x.s) ? today : isoOf(x.s.due);
+      (map[iso] ||= []).push(x);
+    });
+    Object.values(map).forEach(l => l.sort(byUrgency));
+    return map;
+  }
+  function evRow(ev, iso, withDate) {
+    const d = parseISO(iso);
+    const top = withDate ? `${WD[(d.getDay() + 6) % 7]} ${d.getDate()}.` : (ev.allDay ? '' : esc(ev.start));
+    const sub = withDate ? (ev.allDay ? 'ganztägig' : esc(ev.start)) : (ev.allDay ? 'ganztägig' : esc(ev.end));
+    const info = [esc(ev.person || 'Familie'), ev.location && esc(ev.location), ev.repeat && ev.repeat !== 'none' && REPEAT_LABEL[ev.repeat]].filter(Boolean).join(' · ');
+    return `<div class="row ev" data-action="editEvent" data-id="${esc(ev.id)}">
+      <div class="ev-time">${top ? `<div>${top}</div>` : ''}<div class="s">${sub || ''}</div></div>
+      <span class="ev-bar" style="background:var(--${personColor(ev.person)})"></span>
+      <div class="row-main"><div class="row-title">${esc(ev.title)}</div><div class="row-sub">${info}</div></div>
+    </div>`;
+  }
+  function calStep(d) {
+    const [y, m] = ui.cal.month.split('-').map(Number);
+    const nd = new Date(y, m - 1 + d, 1);
+    ui.cal.month = isoOf(nd).slice(0, 7);
+    ui.cal.sel = ui.cal.month === todayISO().slice(0, 7) ? todayISO() : isoOf(nd);
+    render();
+  }
+
+  function syncEventForm() { document.querySelectorAll('#eventSheet .tm').forEach(e => e.hidden = $('eAllDay').checked); }
+  function openEventSheet(id, presetDate) {
+    const ev = id ? events.find(e => e.id === id) : null;
+    if (id && !ev) return;
+    ui.editingEventId = ev ? ev.id : null;
+    $('esTitle').textContent = ev ? 'Termin' : 'Neuer Termin';
+    $('eTitle').value = ev ? ev.title : '';
+    $('eLoc').value = ev ? (ev.location || '') : '';
+    const date = ev ? ev.date : (presetDate || ui.cal.sel || todayISO());
+    $('eAllDay').checked = ev ? !!ev.allDay : false;
+    $('eDate').value = date;
+    $('eEndDate').value = ev ? (ev.endDate || ev.date) : date;
+    const h = Math.min(new Date().getHours() + 1, 22);
+    $('eStart').value = ev && ev.start ? ev.start : `${pad(h)}:00`;
+    $('eEnd').value = ev && ev.end ? ev.end : `${pad(h + 1)}:00`;
+    $('eRepeat').value = ev ? (ev.repeat || 'none') : 'none';
+    const people = ['Familie', ...resources];
+    if (ev && ev.person && !people.includes(ev.person)) people.push(ev.person);
+    $('ePerson').innerHTML = people.map(p => `<option value="${esc(p)}">${esc(p)}</option>`).join('');
+    $('ePerson').value = ev ? (ev.person || 'Familie') : 'Familie';
+    $('eNotes').value = ev ? (ev.notes || '') : '';
+    $('eDeleteGroup').hidden = !ev;
+    syncEventForm();
+    openSheet('eventSheet');
+    if (!ev) setTimeout(() => $('eTitle').focus(), 350);
+  }
+  function saveEvent() {
+    const title = $('eTitle').value.trim();
+    if (!title) { toast('Bitte einen Titel eingeben'); $('eTitle').focus(); return; }
+    const allDay = $('eAllDay').checked;
+    const date = $('eDate').value || todayISO();
+    let endDate = $('eEndDate').value || date;
+    if (endDate < date) endDate = date;
+    const start = $('eStart').value || '09:00';
+    let end = $('eEnd').value || start;
+    if (!allDay && endDate === date && end < start) end = start;
+    const data = {
+      title, location: $('eLoc').value.trim(), allDay, date, endDate,
+      start: allDay ? '' : start, end: allDay ? '' : end,
+      repeat: $('eRepeat').value, person: $('ePerson').value, notes: $('eNotes').value.trim(), updatedAt: Date.now()
+    };
+    const ev = ui.editingEventId ? events.find(e => e.id === ui.editingEventId) : null;
+    if (ev) Object.assign(ev, data);
+    else events.push({ id: uid(), createdAt: Date.now(), ...data });
+    saveEvents();
+    closeSheet('eventSheet');
+    ui.cal = { month: date.slice(0, 7), sel: date };
+    render();
+    toast(ev ? 'Termin gesichert' : 'Termin angelegt');
+  }
+  function deleteEvent() {
+    const idx = events.findIndex(e => e.id === ui.editingEventId);
+    if (idx < 0) return;
+    const ev = events[idx];
+    if (!confirm(ev.repeat && ev.repeat !== 'none' ? `„${ev.title}“ löschen?\nAlle Wiederholungen werden entfernt.` : `„${ev.title}“ löschen?`)) return;
+    events.splice(idx, 1); saveEvents();
+    closeSheet('eventSheet'); render();
+    toast('Termin gelöscht', () => { events.splice(idx, 0, ev); saveEvents(); render(); });
+  }
+
+  /* ---------- Kalender-Import (.ics) ---------- */
+  function parseICS(text) {
+    const lines = text.replace(/\r?\n[ \t]/g, '').split(/\r?\n/);
+    const out = []; let cur = null;
+    for (const line of lines) {
+      if (line === 'BEGIN:VEVENT') { cur = {}; continue; }
+      if (line === 'END:VEVENT') { if (cur) out.push(cur); cur = null; continue; }
+      if (!cur) continue;
+      const i = line.indexOf(':'); if (i < 0) continue;
+      const [name, ...params] = line.slice(0, i).split(';');
+      cur[name.toUpperCase()] = { val: line.slice(i + 1), params: params.join(';') };
+    }
+    return out;
+  }
+  const icsUnesc = s => String(s || '').replace(/\\n/gi, '\n').replace(/\\([,;\\])/g, '$1').trim();
+  function icsWhen(p) {
+    const v = String(p.val || '').trim();
+    if (/VALUE=DATE(?!-)/i.test(p.params || '') || /^\d{8}$/.test(v)) return { date: `${v.slice(0, 4)}-${v.slice(4, 6)}-${v.slice(6, 8)}`, allDay: true };
+    const m = v.match(/^(\d{4})(\d{2})(\d{2})T(\d{2})(\d{2})(\d{2})?(Z)?$/);
+    if (!m) return null;
+    const d = m[7] ? new Date(Date.UTC(+m[1], m[2] - 1, +m[3], +m[4], +m[5])) : new Date(+m[1], m[2] - 1, +m[3], +m[4], +m[5]);
+    return { date: isoOf(d), time: `${pad(d.getHours())}:${pad(d.getMinutes())}`, allDay: false };
+  }
+  function importICS(file) {
+    const reader = new FileReader();
+    reader.onload = e => {
+      try {
+        const limit = isoOf(addDays(startOfToday(), -365));
+        const parsed = [];
+        parseICS(String(e.target.result)).forEach(v => {
+          if (!v.DTSTART || !v.SUMMARY) return;
+          const s = icsWhen(v.DTSTART); if (!s) return;
+          const en = v.DTEND ? icsWhen(v.DTEND) : null;
+          let endDate = en ? en.date : s.date;
+          if (s.allDay && en && en.date > s.date) endDate = isoOf(addDays(parseISO(en.date), -1)); // DTEND ist bei ganztägig exklusiv
+          let repeat = 'none', repeatUntil = '';
+          if (v.RRULE) {
+            const r = Object.fromEntries(v.RRULE.val.split(';').map(x => x.split('=')));
+            const iv = +(r.INTERVAL || 1);
+            if (r.FREQ === 'WEEKLY' && iv <= 2 && !(r.BYDAY && r.BYDAY.includes(','))) repeat = iv === 2 ? 'biweekly' : 'weekly';
+            else if (r.FREQ === 'MONTHLY' && iv === 1) repeat = 'monthly';
+            else if (r.FREQ === 'YEARLY' && iv === 1) repeat = 'yearly';
+            if (r.UNTIL) { const u = icsWhen({ val: r.UNTIL.slice(0, 8), params: '' }); if (u) repeatUntil = u.date; }
+          }
+          if (repeat === 'none' && endDate < limit) return;
+          if (repeat !== 'none' && repeatUntil && repeatUntil < limit) return;
+          parsed.push({
+            uid: v.UID ? v.UID.val : '', title: icsUnesc(v.SUMMARY.val) || 'Termin',
+            location: v.LOCATION ? icsUnesc(v.LOCATION.val) : '', notes: v.DESCRIPTION ? icsUnesc(v.DESCRIPTION.val).slice(0, 1000) : '',
+            allDay: s.allDay, date: s.date, endDate: endDate < s.date ? s.date : endDate,
+            start: s.allDay ? '' : s.time, end: s.allDay ? '' : (en && !en.allDay ? en.time : s.time),
+            repeat, repeatUntil, person: 'Familie'
+          });
+        });
+        if (!parsed.length) { alert('In der Datei wurden keine aktuellen Termine gefunden.'); return; }
+        if (!confirm(`${plural(parsed.length, 'Termin', 'Termine')} importieren?\nBereits importierte Termine werden aktualisiert, nicht doppelt angelegt.`)) return;
+        let added = 0, updated = 0; const now = Date.now();
+        parsed.forEach(p => {
+          const ex = p.uid && events.find(x => x.uid === p.uid);
+          if (ex) { Object.assign(ex, p, { person: ex.person, updatedAt: now }); updated++; }
+          else { events.push({ id: uid(), createdAt: now, updatedAt: now, ...p }); added++; }
+        });
+        saveEvents(); render();
+        toast(`Kalender: ${added} neu, ${updated} aktualisiert`);
+      } catch (err) { alert('Kalenderdatei konnte nicht gelesen werden: ' + err.message); }
+    };
+    reader.readAsText(file);
+  }
+
+  /* ================= Einkauf ================= */
+  const currentList = () => shopLists.find(l => l.id === ui.shopList) || shopLists[0];
+  const cap1 = s => s.charAt(0).toUpperCase() + s.slice(1);
+  /** "2 Milch", "500 g Mehl", "Eier x10" -> Menge + Name */
+  function parseItem(text) {
+    const s = String(text || '').trim().replace(/\s+/g, ' ');
+    let m = s.match(/^(\d+(?:[.,]\d+)?\s?(?:x|kg|g|l|ml|stk\.?|st\.?|pck\.?|pkg\.?|packungen?|pack|dosen?|flaschen?|becher|bund|beutel|gläser|glas|rollen?)?)\s+(.+)$/i);
+    if (m) return { qty: m[1], name: m[2] };
+    m = s.match(/^(.+?)\s+(\d+\s?x|x\s?\d+)$/i);
+    if (m) return { qty: m[2].replace(/\s/g, ''), name: m[1] };
+    return { qty: '', name: s };
+  }
+  function addShopItem(text) {
+    const { qty, name: raw } = parseItem(text);
+    const name = cap1(raw.trim());
+    if (!name) return false;
+    const list = currentList(), key = name.toLowerCase(), now = Date.now();
+    ui.shopQuery = '';
+    const open = shopItems.find(i => i.listId === list.id && !i.done && i.name.toLowerCase() === key);
+    if (open) {
+      if (qty) { open.qty = qty; open.updatedAt = now; saveShop(); }
+      toast(`„${name}“ steht schon auf der Liste`);
+      return true;
+    }
+    const old = shopItems.find(i => i.listId === list.id && i.done && i.name.toLowerCase() === key);
+    if (old) Object.assign(old, { done: false, doneAt: null, qty, createdAt: now, updatedAt: now });
+    else shopItems.push({ id: uid(), listId: list.id, name, qty, note: '', done: false, createdAt: now, updatedAt: now });
+    shopHist[key] = { name, listId: list.id, count: ((shopHist[key] && shopHist[key].count) || 0) + 1, last: now };
+    saveShop();
+    return true;
+  }
+  /** Vorschläge: beim Tippen passende Artikel, sonst die häufigsten dieser Liste */
+  function suggHTML() {
+    const list = currentList();
+    const openNames = new Set(shopItems.filter(i => i.listId === list.id && !i.done).map(i => i.name.toLowerCase()));
+    const q = parseItem(ui.shopQuery).name.toLowerCase();
+    let cand = Object.values(shopHist).filter(h => h && h.name && !openNames.has(h.name.toLowerCase()));
+    if (q) cand = cand.filter(h => h.name.toLowerCase().includes(q))
+      .sort((a, b) => (b.name.toLowerCase().startsWith(q) - a.name.toLowerCase().startsWith(q)) || b.count - a.count);
+    else cand = cand.filter(h => h.listId === list.id).sort((a, b) => b.count - a.count || b.last - a.last);
+    return cand.slice(0, 12).map(h => `<button type="button" class="cap" data-action="shopSugg" data-name="${esc(h.name)}">${esc(h.name)}</button>`).join('');
+  }
+  const itemRow = i => `<div class="row item ${i.done ? 'done' : ''}" data-action="editItem" data-id="${esc(i.id)}">
+    <button class="ring ${i.done ? 'r-done' : ''}" data-action="toggleItem" data-id="${esc(i.id)}" aria-label="${i.done ? 'Wieder auf die Liste' : 'Abhaken'}">${i.done ? svg('check') : ''}</button>
+    <div class="row-main"><div class="row-title">${esc(i.name)}</div>${i.note ? `<div class="row-sub">${esc(i.note)}</div>` : ''}</div>
+    ${i.qty ? `<span class="qty">${esc(i.qty)}</span>` : ''}</div>`;
+  function toggleItem(id) {
+    const i = shopItems.find(x => x.id === id); if (!i) return;
+    i.done = !i.done; i.doneAt = i.done ? Date.now() : null; i.updatedAt = Date.now();
+    saveShop(); render();
+  }
+  function openItemSheet(id) {
+    const i = shopItems.find(x => x.id === id); if (!i) return;
+    ui.editingItemId = id;
+    $('iName').value = i.name; $('iQty').value = i.qty || ''; $('iNote').value = i.note || '';
+    $('iList').innerHTML = shopLists.map(l => `<option value="${esc(l.id)}">${esc(l.name)}</option>`).join('');
+    $('iList').value = i.listId;
+    openSheet('itemSheet');
+  }
+  function saveItem() {
+    const i = shopItems.find(x => x.id === ui.editingItemId); if (!i) return;
+    const name = cap1($('iName').value.trim());
+    if (!name) { toast('Bitte einen Namen eingeben'); return; }
+    Object.assign(i, { name, qty: $('iQty').value.trim(), note: $('iNote').value.trim(), listId: $('iList').value, updatedAt: Date.now() });
+    saveShop(); closeSheet('itemSheet'); render();
+  }
+  function deleteItem() {
+    const idx = shopItems.findIndex(x => x.id === ui.editingItemId); if (idx < 0) return;
+    const [removed] = shopItems.splice(idx, 1);
+    saveShop(); closeSheet('itemSheet'); render();
+    toast('Artikel gelöscht', () => { shopItems.splice(idx, 0, removed); saveShop(); render(); });
+  }
+  function clearDone() {
+    const list = currentList(), before = shopItems.slice();
+    shopItems = shopItems.filter(i => !(i.listId === list.id && i.done));
+    saveShop(); render();
+    toast('Erledigte entfernt', () => { shopItems = before; saveShop(); render(); });
+  }
+  function shopNewList() {
+    const name = (prompt('Name der neuen Liste') || '').trim(); if (!name) return;
+    const l = { id: uid(), name, updatedAt: Date.now() };
+    shopLists.push(l); ui.shopList = l.id; saveShop(); render();
+  }
+  function shopRenameList() {
+    const l = currentList(); const name = (prompt('Liste umbenennen', l.name) || '').trim(); if (!name) return;
+    l.name = name; l.updatedAt = Date.now(); saveShop(); render();
+  }
+  function shopDeleteList() {
+    const l = currentList(); if (shopLists.length <= 1) return;
+    const n = shopItems.filter(i => i.listId === l.id).length;
+    if (!confirm(`Liste „${l.name}“${n ? ` mit ${n} Artikel${n === 1 ? '' : 'n'}` : ''} löschen?`)) return;
+    shopLists = shopLists.filter(x => x.id !== l.id);
+    shopItems = shopItems.filter(i => i.listId !== l.id);
+    ui.shopList = shopLists[0].id; saveShop(); render(); toast('Liste gelöscht');
+  }
+  async function shopShare() {
+    const l = currentList();
+    const open = shopItems.filter(i => i.listId === l.id && !i.done).sort((a, b) => a.createdAt - b.createdAt);
+    if (!open.length) { toast('Die Liste ist leer'); return; }
+    const text = `${l.name}\n` + open.map(i => `• ${i.qty ? i.qty + ' ' : ''}${i.name}${i.note ? ` (${i.note})` : ''}`).join('\n');
+    try { if (navigator.share) { await navigator.share({ title: l.name, text }); return; } }
+    catch (err) { if (err.name === 'AbortError') return; }
+    try { await navigator.clipboard.writeText(text); toast('Liste in die Zwischenablage kopiert'); } catch { alert(text); }
   }
 
   /* ================= Erscheinungsbild ================= */
@@ -1345,7 +1806,19 @@
     deletePerson: d => deletePerson(d.name),
     histMode: d => histMode(d.mode),
     histStep: d => histStep(+d.d),
-    exportExcel, exportICS, exportBackup
+    exportExcel, exportICS, exportBackup,
+    calSel: d => { ui.cal.sel = d.d; ui.cal.month = d.d.slice(0, 7); render(); },
+    calStep: d => calStep(+d.d),
+    calToday: () => { ui.cal = { month: todayISO().slice(0, 7), sel: todayISO() }; render(); },
+    newEvent: d => openEventSheet(null, d.d),
+    editEvent: d => openEventSheet(d.id),
+    saveEvent, deleteEvent,
+    shopPick: d => { ui.shopList = d.id; ui.shopQuery = ''; render(); },
+    shopAdd: () => { const inp = $('shopInput'); if (inp && addShopItem(inp.value)) { render(); $('shopInput').focus(); } },
+    shopSugg: d => { const q = parseItem(ui.shopQuery); if (addShopItem((q.qty ? q.qty + ' ' : '') + d.name)) { const f = document.activeElement && document.activeElement.id === 'shopInput'; render(); if (f) $('shopInput').focus(); } },
+    toggleItem: d => toggleItem(d.id),
+    editItem: d => openItemSheet(d.id),
+    saveItem, deleteItem, clearDone, shopNewList, shopRenameList, shopDeleteList, shopShare
   };
 
   document.addEventListener('click', e => {
@@ -1357,6 +1830,9 @@
   });
   document.addEventListener('change', e => {
     const t = e.target;
+    if (t.id === 'icsImport') { const f = t.files[0]; if (f) importICS(f); t.value = ''; }
+    if (t.id === 'eAllDay') syncEventForm();
+    if (t.id === 'eDate' && $('eEndDate').value < t.value) $('eEndDate').value = t.value;
     if (t.id === 'themeSel') { meta.theme = t.value; saveMeta(); applyTheme(); }
     if (t.id === 'fileRestore') { const f = t.files[0]; if (f) importBackup(f); t.value = ''; }
     if (t.id === 'tArea') { const isNew = t.value === '__NEW__'; $('areaNewRow').hidden = !isNew; if (isNew) $('tAreaNew').focus(); }
@@ -1367,6 +1843,14 @@
   document.addEventListener('keydown', e => {
     if (e.key === 'Escape' && ui.sheets.length) closeSheet();
     if (e.key === 'Enter' && e.target.id === 'tTitle') { e.preventDefault(); e.target.blur(); }
+    if (e.key === 'Enter' && e.target.id === 'shopInput') { e.preventDefault(); if (addShopItem(e.target.value)) { render(); $('shopInput').focus(); } }
+  });
+  document.addEventListener('input', e => {
+    if (e.target.id === 'shopInput') { ui.shopQuery = e.target.value; const sg = $('shopSugg'); if (sg) sg.innerHTML = suggHTML(); }
+  });
+  // Vorschläge antippen, ohne dass die Tastatur zugeht
+  document.addEventListener('pointerdown', e => {
+    if (e.target.closest && e.target.closest('#shopSugg .cap, .add-row .plus')) e.preventDefault();
   });
   $('dMin').addEventListener('input', e => markQuick(e.target.value));
   $('search').addEventListener('input', e => { ui.query = e.target.value.trim(); renderPage(pagesOf('home')[0]); $('clearSearch').hidden = !ui.query; });

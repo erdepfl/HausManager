@@ -4,7 +4,9 @@ Wartung und Projekte rund ums Haus – als Web-App fürs iPhone (Home-Bildschirm
 
 - **Daten** liegen ausschließlich lokal auf dem Gerät (localStorage). Dieses Repository enthält nur die App, keine Daten.
 - **Backup/Wiederherstellung** über Einstellungen → Datensicherung (.json).
-- **Excel-Export** im Verlauf, **Kalender-Export (.ics)** in den Einstellungen.
+- **Wartung:** wiederkehrende Aufgaben mit Saison, Projekte, Zeit- und Kostenbuchung, Verlauf mit Excel-Export.
+- **Familienkalender:** Termine pro Person (farbig), ganztägig/mehrtägig, Wiederholungen; Wartungsfälligkeiten erscheinen automatisch. Import aus .ics-Dateien.
+- **Einkaufslisten:** mehrere Listen, Mengen-Erkennung („2 Milch“, „500 g Mehl“), Vorschläge aus häufig gekauften Artikeln, Teilen als Text.
 
 ## Aufbau
 
